@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Extr@ct{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='assets/favicon.png') }}" type="image/x-icon">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+
+<body>
+  <!-- Logo and Nav Bar Container -->
+  <div class="container mt-5">
+    <div class="row align-items-center">
+      <!-- Logo -->
+      <div>
+        <p">
+          <strong class="alpha-tag">Alpha</strong>
+          <span>
+            This is a new service – your
+            <a class="govuk-link" href="https://forms.office.com/e/Z2HVbUL6G2" target="_blank">feedback</a>
+            will help us to improve it.
+          </span>
+          </p>
+      </div>
+      <div class="col-auto">
+        <div class="logo-container">
+          <img src="{{ url_for('static', filename='assets/logo_white.png') }}" alt="Main Logo" class="img-fluid"
+            width="180" height="50">
+        </div>
+      </div>
+      <!-- Navbar -->
+      <div class="col">
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link {% if current_page == 'index' %}active{% endif %}" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if current_page == 'upload_csv' %}active{% endif %}" href="/upload_csv">Upload
+              Questions</a>
+          </li>
+          {% if session.get('csv_validated') %}
+          <li class="nav-item">
+            <a class="nav-link {% if current_page == 'upload_pdf' %}active{% endif %}" href="/upload_pdf">Upload
+              Responses</a>
+          </li>
+          {% endif %}
+          {% if session.get('csv_validated') and session.get('pdf_uploaded') %}
+          <li class="nav-item">
+            <a class="nav-link {% if current_page == 'activate_langchain' %}active{% endif %}"
+              href="/activate_langchain">Extract</a>
+          </li>
+          {% endif %}
+          {% if session.get('model_outputs') %}
+          <li class="nav-item">
+            {% if session.get('response_question_ids') %}
+            {% set response_question_ids = session.get('response_question_ids') %}
+            {% set first_response_id = response_question_ids.keys()|list|first %}
+            {% set first_question_id = response_question_ids.get(first_response_id)|list|first %}
+            <a class="nav-link {% if current_page == 'review' %}active{% endif %}"
+              href="{{ url_for('review.review_page', response_id=first_response_id, question_label=first_question_id) }}">Review</a>
+
+          <li class="nav-item">
+            <a class="nav-link {% if current_page == 'manual_extraction' %}active{% endif %}"
+              href="{{ url_for('manual_extraction.review_highlighted_text', response_id=first_response_id) }}">Manual
+              Extraction</a>
+            {% endif %}
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if current_page == 'download_dataset' %}active{% endif %}"
+              href="{{ url_for('download.download_dataset_page') }}">
+              Download Dataset
+            </a>
+          </li>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+
+    <!-- Main Content Container -->
+
+    <div class="row">
+      <div class="col-md-10 offset-md-2">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="mt-4">
+          <div class="alert alert-warning">
+            {{ message | safe }}
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        <!-- Default content if no block provided -->
+        <p>Welcome to the CfE tool. Use the tabs to upload your survey questions and response files.</p>
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% block scripts %}
+
+  {% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}
+Extr@ct: Responses
+{% endblock %}
+
+{% block content %}
+<p class="mb-4"><br /></p>
+<h3 class="mb-4">Click the button below to activate the LLM Extractor:</h3>
+<div class="mt-4">
+  <form action="{{ url_for('langchain.activate_langchain') }}" method="post">
+    <button id="extract-button" type="submit" class="btn btn-primary">Extract</button>
+  </form>
+  {% if outputs %}
+  <h5>Extraction Status:</h5>
+  {% for output in outputs %}
+  <div class="mt-3">
+    <ul>
+      <li>{{ output }}</li>
+    </ul>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% endblock %}
+
+  {% block scripts %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const button = document.getElementById('extract-button');
+      if (button) {
+        button.addEventListener('click', function () {
+          setTimeout(function () {
+            button.disabled = true;
+            button.innerText = 'Extracting...';
+          }, 10);  // delay long enough to allow form submission
+        });
+      }
+    });
+  </script>
+  {% endblock %}

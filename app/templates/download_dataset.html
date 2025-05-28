@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+Extr@ct: Download Dataset
+{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Download Extracted Dataset</h3>
+
+<!-- Button for downloading question answers pivot dataset -->
+<form method="get" action="{{ url_for('download.download_question_answers_pivot') }}" class="d-flex align-items-center">
+    <button type="submit" class="btn btn-info">Download Qualtrics-Based Table</button>
+</form>
+
+<!-- Explanation of the pivot table -->
+<div class="alert alert-secondary mb-4 mt-4" role="alert">
+    <strong>What is the "Qualtrics-Based Table"?</strong>
+    <ul class="mb-0">
+        <li>This CSV file contains one row per response, with each question as a separate column.</li>
+        <li>Each cell shows the extracted answer for that question and response. Model extractions are only included if
+            their review was 'accepted'. Manual review text is also included if the user has submitted it.</li>
+        <li>The first column is <code>response_id</code>, followed by columns for each question's text.</li>
+    </ul>
+</div>
+
+{% endblock %}

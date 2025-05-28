@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}
+Extr@ct: Upload Questions
+{% endblock %}
+
+{% block content %}
+<!-- Text on page -->
+<p class="mb-4"><br /></p>
+<h3 class="mb-4">Upload Survey Questions CSV File</h3>
+<!-- Button for CSV upload -->
+{% if tables %}
+<form action="/upload_csv" method="post" enctype="multipart/form-data" class="mb-4 mt-4">
+  <div class="form-group">
+    <input type="file" name="csv_file" accept=".csv" class="form-control-file">
+  </div>
+  <button type="submit" class="btn btn-primary">Reupload CSV</button>
+</form>
+{% endif %}
+{% if not tables %}
+<form action="/upload_csv" method="post" enctype="multipart/form-data" class="mb-4 mt-4">
+  <div class="form-group">
+    <input type="file" name="csv_file" accept=".csv" class="form-control-file">
+  </div>
+  <button type="submit" class="btn btn-primary">Upload CSV</button>
+</form>
+{% endif %}
+
+<!-- Error message text format -->
+{% if error %}
+<div class="alert alert-danger"><strong>Error: </strong>{{ error|safe }}
+  {% if tables %}
+  <br>
+  The data shown below may be incorrect or incomplete.
+  {% endif %}
+</div>
+
+{% endif %}
+<!-- Display uploaded CSV data in a table -->
+{% if tables %}
+<h3 class="mt-4">Uploaded CSV Data</h3>
+{% for table in tables %}
+<div class="table-responsive">
+  {{ table | safe}}
+</div>
+{% endfor %}
+{% endif %}
+
+{% endblock %}

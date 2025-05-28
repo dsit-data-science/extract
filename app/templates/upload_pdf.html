@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+Extr@ct: Upload Responses
+{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Upload Response PDF Files</h3>
+<!-- Button for PDF upload -->
+<form action="/upload_pdf" method="post" enctype="multipart/form-data" class="mb-4 mt-4">
+  <div class="form-group">
+    <input type="file" id="pdf_files" name="pdf_files" accept=".pdf" required multiple class="form-control-file">
+  </div>
+  <button type="submit" class="btn btn-primary">Upload PDF</button>
+</form>
+<!-- Error message text format -->
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+<!-- Display uploaded PDF file, by clicking on the URL and opening on a new tab-->
+{% if uploaded_files %}
+<div class="mt-3">
+  <h5>Uploaded Files:</h5>
+  <ul>
+    {% for file in uploaded_files %}
+    <li><a href="{{ url_for('viewer.view_s3_file', s3_file_path=file) }}" target="_blank">{{ file }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endblock %}

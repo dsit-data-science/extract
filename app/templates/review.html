@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}
+Extr@ct: Review Extractions
+{% endblock %}
+
+{% block content %}
+<!-- Example split danger button -->
+
+<div class="container pb-3 pt-3">
+    <h2>Review Extractions</h2>
+
+    {% if entry_reviewed %}
+    <div class="alert alert-warning" role="alert">
+        <strong>Already Reviewed!</strong> This review has already been {{ entry_status }}.
+    </div>
+    {% endif %}
+
+    {% if entry_in_progress and not entry_unextracted %}
+    <div class="alert alert-info" role="alert">
+        <strong>In Progress</strong> This question is currently being reviewed.
+    </div>
+    {% endif %}
+
+    {% if entry_unextracted %}
+    <div class="alert alert-danger" role="alert">
+        <strong>Not Extracted!</strong> Question {{ unextracted_label }} has not been extracted for this response.
+    </div>
+    {% endif %}
+
+
+    <div class="btn-group">
+        <a class="btn btn-primary"
+            href="{{ url_for('review.next_response_route', current_response=response_id, question_label=question_label) }}">
+            Next Response
+        </a>
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu">
+            {% for response in response_ids %}
+            <a class="dropdown-item"
+                href="{{ url_for('review.review_page', response_id=response, question_label=question_label) }}">{{
+                response_ids_names.get(response, response).split('/')[-1] }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <a class="btn btn-primary"
+            href="{{ url_for('review.next_question_route', response_id=response_id, current_question=question_label, question_labels=question_labels) }}">
+            Next Question
+        </a>
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+
+        <ul class="dropdown-menu">
+            {% for question in local_question_labels %}
+            {% if question in response_question_labels %}
+            <li><a class="dropdown-item"
+                    href="{{ url_for('review.review_page', response_id=response_id, question_label=question) }}">{{
+                    question }}</a></li>
+            {% endif %}
+            {% endfor %}
+
+            {% set unextracted = local_question_labels|reject('in', response_question_labels)|list %}
+            {% if unextracted %}
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <div class="p-2">Unextracted</div>
+            </li>
+            {% for question in unextracted %}
+            <li><a class="dropdown-item"
+                    href="{{ url_for('review.review_page', response_id=response_id, question_label=question) }}">{{
+                    question }}</a></li>
+            {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<!-- Card to display selected question and extracted text -->
+<div class="card mb-3">
+    <div class="card-body">
+        <strong>Response:</strong>
+        <span id="responseId"> {{ response_ids_names.get(response_id, response_id).split('/')[-1] }}</span>
+        <br>
+        <strong>Question Label:</strong>
+        <span id="questionLabel"> {{ question_label|safe }}</span>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <strong>Question Text:</strong>
+        <span id="questionText"> {{ question_schema.question_text}}</span>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <strong>Extracted Text:</strong>
+        {% for text in question_schema.exact_extracted_text %}
+        <pre class="m-0" style="white-space: pre-wrap; word-wrap: break-word;" id="extractedText">{{ text }}</pre>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="accordion mb-3">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseFullResponse">
+                <strong>Full Response Text</strong>
+            </button>
+        </h2>
+        <div id="collapseFullResponse" class="accordion-collapse collapse">
+            <div class="accordion-body">
+                <pre class="m-0" style="white-space: pre-wrap; word-wrap: break-word;"
+                    id="fullResponseText">{{ full_response_text|safe }}</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not entry_unextracted %}
+<form method="POST" action="{{ url_for('review.review_extraction') }}">
+    <input type="hidden" name="response_id" value="{{ response_id }}" />
+    <input type="hidden" name="question_label" value="{{ question_label }}" />
+
+    <button type="submit" name="action-accept-decline" value="Accepted" class="btn btn-approve m-1">
+        <i class="bi bi-check-circle"></i> Accept
+    </button>
+
+    <button type="submit" name="action-accept-decline" value="Rejected" class="btn btn-decline m-1">
+        <i class="bi bi-x-circle"></i> Reject
+    </button>
+</form>
+
+<div>
+    <p class="d-inline-flex gap-1 p-1">
+        <button class="btn btn-primary" data-bs-toggle="collapse" href="#collapseShowDetails" role="button"
+            aria-expanded="false" aria-controls="collapseExample">
+            Show Details
+        </button>
+    </p>
+
+    <!-- Collapsible Section -->
+    <div class="collapse" id="collapseShowDetails">
+        <div class="card mb-3">
+            <div class="card-body">
+                <strong>Original Extracted Text:</strong>
+                {% for text in question_schema.extracted_text %}
+                <pre class="m-0" style="white-space: pre-wrap; word-wrap: break-word;"
+                    id="originalExtractedTextDetails">{{ text }}</pre>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <strong>Exact Match:</strong>
+                <span id="isSimilarity"> {{ entry_exact_match}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+
+{% block scripts %}
+{% endblock %}

@@ -1,0 +1,79 @@
+.wrap-text {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 1em;
+    /* Limit the height */
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+.wrap-text.expanded {
+    max-height: none;
+    /* Remove the height limit */
+}
+
+.nav-tabs .nav-link {
+    color: #FF9900;
+}
+
+.nav-tabs .nav-link.active {
+    color: #000000;
+    background-color: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #FF9900;
+}
+
+.btn {
+    background-color: #FF9900;
+    border-color: #FF9900;
+    color: white;
+}
+
+.btn:hover {
+    background-color: #e68a00;
+    border-color: #e68a00;
+}
+
+.btn-approve {
+    background-color: #28a745;
+    /* Green */
+    border-color: #28a745;
+    color: white;
+}
+
+.btn-approve:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    color: white;
+    /* Ensure text color remains white */
+}
+
+.btn-decline {
+    background-color: #dc3545;
+    /* Red */
+    border-color: #dc3545;
+    color: white;
+}
+
+.btn-decline:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    color: white;
+    /* Ensure text color remains white */
+}
+
+.logo-container {
+    margin: 10px;
+}
+
+.alpha-tag {
+    background-color: #FF9900;
+    color: white;
+    padding: 5px 8px;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 3px;
+}

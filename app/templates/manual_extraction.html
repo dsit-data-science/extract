@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}
+Extr@ct: Text Highlighting
+{% endblock %}
+
+{% block content %}
+<div class="container pb-3 pt-3">
+    <h2>Text Highlighting</h2>
+    <div class="btn-group mb-3">
+        <a class="btn btn-primary"
+            href="{{ url_for('manual_extraction.review_highlighted_text', response_id=response_id) }}">
+            Select Response
+        </a>
+
+        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu">
+            {% for response_id in response_ids %}
+            <a class="dropdown-item"
+                href="{{ url_for('manual_extraction.review_highlighted_text', response_id=response_id) }}">{{
+                response_ids_names.get(response_id, response_id) }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column: Questions -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Manual Submission</strong>
+            </div>
+            <div id="questions-box" class="card-body overflow-auto" style="max-height: 80vh;">
+                {% for question in questions %}
+                <div class="question mb-3">
+                    <h6>{{ question.question_label }}: {{ question.question_text }}</h6>
+                    <form method="POST" action="{{ url_for('manual_extraction.submit_extraction') }}">
+                        <textarea name="extracted_text" rows="3" class="form-control" placeholder="Paste text here"
+                            id="textarea-{{ question.question_label }}"
+                            onclick="setStartTime('{{ question.question_label }}')"
+                            data-original-value="{{ manual_extractions.get(question.question_label, '') }}">{{ manual_extractions.get(question.question_label, '') }}</textarea>
+                        <input type="hidden" id="startTime_{{ question.question_label }}" name="start_time">
+                        <input type="hidden" name="question_label" value="{{ question.question_label }}">
+                        <input type="hidden" name="response_id" value="{{ response_id }}">
+                        <div class="d-flex justify-content-between mt-2">
+                            <button type="submit" class="btn btn-approve submit-btn"
+                                id="submit-btn-{{ question.question_label }}"
+                                style="visibility: hidden;">Submit</button>
+                            <button type="button" class="btn btn-secondary" id="undo-btn-{{ question.question_label }}"
+                                style="visibility: hidden;" onclick="undoChanges('{{ question.question_label }}')">Undo
+                                changes</button>
+                            <button type="button" class="btn btn-decline" id="clear-btn-{{ question.question_label }}"
+                                onclick="clearExtraction('{{ question.question_label }}')">Clear</button>
+                        </div>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Highlighted Text -->
+    <div class="col-md-7">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Response:</strong> {{ response_ids_names.get(response_id, response_id) }} <br>
+                <strong>ID:</strong> {{ response_id }}
+            </div>
+            <div id="response-box" class="card-body overflow-auto" style="max-height: 80vh;">
+                <pre class="m-0" style="white-space: pre-wrap; word-wrap: break-word;">{{ highlighted_text|safe }}</pre>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function updateVisibility(questionLabel) {
+            const textarea = document.getElementById(`textarea-${questionLabel}`);
+            const originalValue = textarea.getAttribute("data-original-value");
+            const submitButton = document.getElementById(`submit-btn-${questionLabel}`);
+            const undoButton = document.getElementById(`undo-btn-${questionLabel}`);
+            const clearButton = document.getElementById(`clear-btn-${questionLabel}`);
+
+            // Show/hide buttons based on textarea value
+            if (textarea.value !== originalValue) {
+                submitButton.style.visibility = "visible";
+                undoButton.style.visibility = "visible";
+            } else {
+                submitButton.style.visibility = "hidden";
+                undoButton.style.visibility = "hidden";
+            }
+
+            if (textarea.value.length > 0) {
+                clearButton.style.visibility = "visible";
+            } else {
+                clearButton.style.visibility = "hidden";
+            }
+
+        }
+        // Function to track changes in textareas
+        document.querySelectorAll("textarea").forEach((textarea) => {
+            const questionLabel = textarea.id.replace("textarea-", "");
+
+            // Restore saved value from local storage on page load
+            const localSavedValue = localStorage.getItem(`textarea-${questionLabel}`);
+            if (localSavedValue !== null) {
+                textarea.value = localSavedValue;
+            }
+
+            // Initial visibility check
+            updateVisibility(questionLabel);
+
+            // Save changes to local storage on input
+            textarea.addEventListener("input", () => {
+                localStorage.setItem(`textarea-${questionLabel}`, textarea.value);
+                updateVisibility(questionLabel);
+            });
+        });
+
+        // Clear extraction for a specific question
+        function clearExtraction(questionLabel) {
+            const textarea = document.getElementById(`textarea-${questionLabel}`);
+            textarea.value = ""; // Clear the text box
+            localStorage.setItem(`textarea-${questionLabel}`, ""); // Update local storage
+            updateVisibility(questionLabel);
+        }
+
+        // Undo changes for a specific question
+        function undoChanges(questionLabel) {
+            const textarea = document.getElementById(`textarea-${questionLabel}`);
+            const originalValue = textarea.getAttribute("data-original-value");
+            textarea.value = originalValue; // Reset the value to the original
+            localStorage.setItem(`textarea-${questionLabel}`, originalValue); // Update local storage
+            updateVisibility(questionLabel);
+        }
+
+        // Set Start Time On Click of Box
+        function setStartTime(questionLabel) {
+            console.log(`setStartTime called for questionLabel: ${questionLabel}`);
+            const hiddenInput = document.getElementById('startTime_' + questionLabel);
+            if (!hiddenInput) {
+                console.error(`Hidden input not found for id: startTime_${questionLabel}`);
+                return;
+            }
+            if (!hiddenInput.value) {
+                const timestamp = Math.floor(Date.now() / 1000);
+                hiddenInput.value = timestamp;
+                console.log(`Start time set to: ${timestamp}`);
+            }
+        }
+
+        // Clear local storage for a specific question on submit
+        document.querySelectorAll(".submit-btn").forEach((submitButton) => {
+            submitButton.addEventListener("click", (event) => {
+                const questionLabel = submitButton.id.replace("submit-btn-", "");
+                localStorage.removeItem(`textarea-${questionLabel}`); // Remove from local storage
+            });
+        });
+
+        // SAVE scroll on form submit
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', () => {
+                ['questions-box', 'response-box'].forEach(id => {
+                    const el = document.getElementById(id);
+                    sessionStorage.setItem(`scroll-${id}`, el.scrollTop);
+                });
+            });
+        });
+
+        // CLEAR scroll on any non-submit navigation/button
+        document.querySelectorAll('.nav-link, .dropdown-item').forEach(el => {
+            el.addEventListener('click', () => {
+                ['questions-box', 'response-box']
+                    .forEach(id => sessionStorage.removeItem(`scroll-${id}`));
+            });
+        });
+
+        // RESTORE scroll on load
+        window.addEventListener('DOMContentLoaded', () => {
+            ['questions-box', 'response-box'].forEach(id => {
+                const val = sessionStorage.getItem(`scroll-${id}`);
+                if (val !== null) document.getElementById(id).scrollTop = +val;
+            });
+        });
+    </script>
+
+
+    {% endblock %}

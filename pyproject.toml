@@ -1,0 +1,147 @@
+[tool.poetry]
+name = "extr@ct"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+packages = [
+    { include = "app" },
+    { include = "consultation_emails" }
+]
+package-mode = true
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+openai = "^1.30.1"
+docx = "^0.2.4"
+pandas = "2.1.4"
+asyncio = "^3.4.3"
+aiohttp = "^3.10.2"
+nltk = "^3.9.1"
+scipy = "^1.14.1"
+langchain-core = "^0.3.21"
+langchain-community = "^0.3.8"
+langchain-openai = "^0.2.10"
+python-levenshtein = "^0.26.1"
+boto3 = "^1.35.81"
+flask = {extras = ["async"], version = "^3.1.1"}
+flask-wtf = "^1.2.2"
+wtforms = "^3.2.1"
+pymupdf = "^1.25.1"
+deepeval = "^2.1.6"
+tenacity = "8.5.0"
+flask-session = "^0.8.0"
+python-docx = "^1.1.2"
+docx2txt = "^0.8"
+watchtower = "^3.4.0"
+bleach = "^6.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.6.2"
+ruff = "^0.3.1"
+pytest = "^8.3.3"
+nbstripout = "^0.7.1"
+pytest-mock = "^3.14.0"
+interrogate = "^1.7.0"
+ipywidgets = "^8.1.5"
+
+[tool.poetry.group.doc.dependencies]
+sphinx = "^8.1.3"
+sphinx-book-theme = "^1.1.3"
+sphinx-togglebutton = "^0.3.2"
+myst-parser = "^4.0.0"
+
+[tool.interrogate]
+fail_under=80
+verbose = 1
+exclude = ["doc", "tests", "utils"]
+ignore_init_method = true
+ignore_init_module = true
+ignore_module = true
+# output file logation
+generate-badge = "."
+badge-format = "svg"
+
+[tool.ruff]
+line-length = 144
+indent-width = 4
+
+# Extend linting and formatting support to Jupyter Notebooks
+extend-include = ["*.ipynb"]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "doc"
+]
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+
+# format docstrings code blocks
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # flake8-datetimez
+    "C4",
+    # isort
+    "I"
+]
+
+[tool.ruff.lint.mccabe]
+# Flag error when cyclomatic complexity is too high
+max-complexity = 10
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

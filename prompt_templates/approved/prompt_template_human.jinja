@@ -1,0 +1,12 @@
+### Questions:
+
+For the real task the list of questions to respond to are:
+{% for question in questions -%}
+{"question_label": {{ question.question_label }}, "question_text": {{ question.question_text | tojson }}}
+{% endfor %}
+
+Extract the responses from the following context.
+
+### Context:
+
+{{ response_text }}
